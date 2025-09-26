@@ -1,0 +1,8 @@
+.env
+.development.env
+node_modules
+defaultconf.json
+dist
+tsconfig.tsbuildinfo
+
+
