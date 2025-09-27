@@ -7,7 +7,7 @@ import { Images } from "../images/images.model";
 
 interface CommentsCreationAttrs {
     imageId: number;
-    test: string;
+    text: string;
 };
 
 @Table({ tableName: 'comments', createdAt: false, updatedAt: false })
@@ -24,7 +24,7 @@ export class Comments extends Model<Comments, CommentsCreationAttrs> {
 
     @ApiProperty({ example: 'Amazing!', description: 'comment text' })
     @Column({ type: DataType.TEXT, allowNull: false })
-    test!: string;
+    text!: string;
 
     @ApiProperty({ example: 1671455275315, description: 'Created at' })
     @Column({ type: DataType.BIGINT, allowNull: false, defaultValue: () => Date.now() })

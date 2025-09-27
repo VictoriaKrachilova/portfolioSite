@@ -6,11 +6,13 @@ import { Users } from '../users/users.model';
 import { Images } from '../images/images.model';
 import { Comments } from '../comments/comments.model';
 import { UpdatePortfolioDto } from './dto/update-portfolio.dto';
+import { ImagesService } from '../images/images.service';
 
 @Injectable()
 export class PortfoliosService {
     constructor(
         @InjectModel(Portfolios) private portfoliosRepository: typeof Portfolios,
+        private imagesService: ImagesService
     ) {}
 
     
@@ -33,11 +35,25 @@ export class PortfoliosService {
         return { id: portfolio.id };
     }
 
-    async deletePortfolio(portfolioId: number, userId: number) {
-        const deleted = await this.portfoliosRepository.destroy({ where: { id: portfolioId, userId } });
-        if (!deleted) throw new NotFoundException('Portfolio not found');
+    private async deletePortfolioSystem(portfolioId: number) {
+        await this.imagesService.deleteAllImagesByPortfolioId(portfolioId);
+        await this.portfoliosRepository.destroy({ where: { id: portfolioId } });
         return { status: 'ok' };
     }
+
+    async deletePortfolio(portfolioId: number, userId: number) {
+        const portfolio = await this.portfoliosRepository.findOne({ where: { id: portfolioId, userId } });
+        if (!portfolio) throw new NotFoundException('Portfolio not found');
+        await this.deletePortfolioSystem(portfolioId);
+        return { status: 'ok' };
+    }
+
+    async deleteAllPortfolioByUserId(userId: number) {
+        const portfolioArr = await this.portfoliosRepository.findAll({ where: { userId }, raw: true });
+        await Promise.all(portfolioArr.map(portfolio => this.deletePortfolioSystem(portfolio.id)));
+        return { status: 'ok' };
+    }
+
 
     async getPortfolioById(portfolioId: number, userId: number) {
         const portfolio = (await this.portfoliosRepository.findOne({

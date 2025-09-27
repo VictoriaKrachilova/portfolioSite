@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsString, Length, Matches } from "class-validator";
+import { IsString, Length } from "class-validator";
 import { user } from "../../common/types.js";
 
 

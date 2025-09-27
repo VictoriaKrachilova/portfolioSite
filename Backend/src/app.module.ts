@@ -7,8 +7,10 @@ import { UsersModule } from './users/users.module';
 import { CommentsModule } from './comments/comments.module';
 import { Users } from './users/users.model';
 import { Portfolios } from './portfolios/portfolios.model';
-import { Images } from './images/images.model';
+import { Images } from './images/models/images.model';
 import { Comments } from './comments/comments.model';
+import { StorageModule } from './storage/storage.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
 	controllers: [],
@@ -35,6 +37,7 @@ import { Comments } from './comments/comments.model';
 		UsersModule,
 		PortfoliosModule,
 		ImagesModule,
+		StorageModule,
 		CommentsModule,
 	],
 })

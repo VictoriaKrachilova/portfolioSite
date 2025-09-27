@@ -24,7 +24,7 @@ export class PortfoliosController {
 	@ApiResponse({ status: 404, description: 'Portfolio not found' })
 	@UseGuards(JwtAuthGuard)
 	@ApiBearerAuth()
-	@Get(':portfolioId')
+	@Get('/:portfolioId')
 	async getPortfolioById(@Param('portfolioId') portfolioId: number, @Req() req: RequestWithUser) {
 		return this.portfoliosService.getPortfolioById(portfolioId, req.userId);
 	}
@@ -33,7 +33,7 @@ export class PortfoliosController {
 	@ApiResponse({ status: 404, description: 'Portfolio not found' })
 	@UseGuards(JwtAuthGuard)
 	@ApiBearerAuth()
-	@Delete(':portfolioId')
+	@Delete('/:portfolioId')
 	async deletePortfolio(@Param('portfolioId') portfolioId: number, @Req() req: RequestWithUser) {
 		return this.portfoliosService.deletePortfolio(portfolioId, req.userId);
 	}
@@ -42,7 +42,7 @@ export class PortfoliosController {
 	@ApiResponse({ status: 404, description: 'Portfolio not found' })
 	@UseGuards(JwtAuthGuard)
 	@ApiBearerAuth()
-	@Patch(':portfolioId')
+	@Patch('/:portfolioId')
 	async updatePortfolio(@Param('portfolioId') portfolioId: number, @Body() body: UpdatePortfolioDto) {
 		return this.portfoliosService.updatePortfolio(portfolioId, body);
 	}
