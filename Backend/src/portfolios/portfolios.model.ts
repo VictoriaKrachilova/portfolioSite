@@ -2,6 +2,7 @@ import { Column, DataType, Model, Table, ForeignKey, BelongsTo, HasMany} from "s
 import { ApiProperty } from "@nestjs/swagger";
 import { Users } from "../users/users.model";
 import { NonAttribute } from "sequelize";
+import { Images } from "../images/images.model";
 
 
 interface PortfoliosCreationAttrs {
@@ -37,6 +38,6 @@ export class Portfolios extends Model<Portfolios, PortfoliosCreationAttrs> {
     @BelongsTo(() => Users, { onDelete: 'CASCADE' })
     user!: NonAttribute<Users>;
 
-    @HasMany(() => Portfolios)
-    images?: Portfolios[]; 
+    @HasMany(() => Images)
+    images?: Images[]; 
 }

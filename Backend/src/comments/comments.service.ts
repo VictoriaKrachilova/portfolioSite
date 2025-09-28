@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { InjectModel } from '@nestjs/sequelize';
-import { Images } from 'src/images/images.model';
+import { Images } from '../images/images.model';
 import { Comments } from './comments.model';
 
 @Injectable()

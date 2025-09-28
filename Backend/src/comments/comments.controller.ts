@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { SkipLimitQueryDto } from 'src/common/skip-limit.query.dto';
+import { SkipLimitQueryDto } from '../common/skip-limit.query.dto';
 
 @Controller('comments')
 export class CommentsController {

@@ -11,7 +11,7 @@ import { PortfoliosModule } from '../portfolios/portfolios.module';
 	providers: [UsersService],
 	imports: [
 		forwardRef(() => AuthModule),
-		PortfoliosModule,
+		forwardRef(() => PortfoliosModule),
         SequelizeModule.forFeature([ Users ]),
 	],
 	exports: [UsersService]

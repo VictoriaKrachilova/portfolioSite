@@ -8,7 +8,7 @@ import { Comments } from "../comments/comments.model";
 interface ImagesCreationAttrs {
     portfolioId: number;
     name: string;
-    description: string;
+    description?: string;
 };
 
 @Table({ tableName: 'images', createdAt: false, updatedAt: false })
@@ -28,8 +28,8 @@ export class Images extends Model<Images, ImagesCreationAttrs> {
     name!: string;
 
     @ApiProperty({ example: 'Length: 1m', description: 'image`s description' })
-    @Column({ type: DataType.STRING, allowNull: false })
-    description!: string;
+    @Column({ type: DataType.STRING, allowNull: true })
+    description?: string;
 
     @ApiProperty({ example: 1671455275315, description: 'Created at' })
     @Column({ type: DataType.BIGINT, allowNull: false, defaultValue: () => Date.now() })

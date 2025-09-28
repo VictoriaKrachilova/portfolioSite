@@ -1,11 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNumber, IsString, Length } from "class-validator";
+import { IsNumber, IsOptional, IsString, Length } from "class-validator";
 import { user } from "../../common/types.js";
+import { Type } from "class-transformer";
 
 
 export class CreateImageDto {
 
     @ApiProperty({ example: 1, description: 'portfolio id' })
+    @Type(() => Number)
     @IsNumber()
     portfolioId!: number;
 
@@ -17,8 +19,7 @@ export class CreateImageDto {
     @ApiProperty({ example: 'It was a wonderful day. The sky was covered with clouds.', description: 'image`s contain name' })
     @IsString()
     @Length(1, 250, { message: 'Not more than 250 symbols' })
-    description!: string;
-
-    user!: user
+    @IsOptional()
+    description?: string;
 
 }

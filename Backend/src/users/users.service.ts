@@ -17,8 +17,7 @@ export class UsersService {
     }
 
     async registration(dto: CreateUserDto) {
-        const user = (await this.usersRepository.create(dto)).toJSON();
-        return { id: user.id };
+        return (await this.usersRepository.create(dto)).toJSON();
     }
 
     async getProfile(userId: number) {

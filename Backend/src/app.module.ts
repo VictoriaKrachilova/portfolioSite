@@ -4,10 +4,9 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { ImagesModule } from './images/images.module';
 import { PortfoliosModule } from './portfolios/portfolios.module';
 import { UsersModule } from './users/users.module';
-import { CommentsModule } from './comments/comments.module';
 import { Users } from './users/users.model';
 import { Portfolios } from './portfolios/portfolios.model';
-import { Images } from './images/models/images.model';
+import { Images } from './images/images.model';
 import { Comments } from './comments/comments.model';
 import { StorageModule } from './storage/storage.module';
 import { CommentsModule } from './comments/comments.module';
@@ -28,10 +27,10 @@ import { CommentsModule } from './comments/comments.module';
 			database: process.env.POSTGRES_DB,
 			autoLoadModels: true,
 			models: [ 
-				Users,
-				Portfolios,
+				Comments,
 				Images,
-				Comments
+				Portfolios,
+				Users,
 			]
 		}),
 		UsersModule,
