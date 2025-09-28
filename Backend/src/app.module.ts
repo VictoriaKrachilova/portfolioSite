@@ -33,7 +33,9 @@ import { RefreshToken } from './auth/refresh-token.model';
 				Images,
 				Comments,
 				RefreshToken,
-			]
+			],
+			logging: false,
+			autoLoadModels: false
 		}),
 		AuthModule,
 		UsersModule,
