@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, IsOptional, IsString, Length, Matches } from "class-validator";
-import { user } from "../../common/types.js";
+import { user } from "../../common/dto/types.js";
 
 
 export class UpdatePortfolioDto {

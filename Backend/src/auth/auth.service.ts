@@ -1,44 +1,83 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from "@nestjs/jwt";
-import bcrypt from 'bcryptjs'
-import { LoginUserDto } from './dto/login-user.dto.js';
-import { CreateUserDto } from '../users/dto/create-user.dto.js';
-import { UsersService } from '../users/users.service.js';
-import { Users } from '../users/users.model.js';
-
+import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import bcrypt from 'bcryptjs';
+import { UsersService } from '../users/users.service';
+import { Users } from '../users/users.model';
+import { CreateUserDto } from '../users/dto/create-user.dto';
+import { LoginUserDto } from './dto/login-user.dto';
+import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthService {
+    constructor(
+        private usersService: UsersService,
+        private jwtService: JwtService,
+        private tokenService: TokenService,
+    ) { }
 
-    constructor(private usersService: UsersService,
-                private jwtService: JwtService) {}
+    private generateAccessToken(user: Users) {
+        const payload = { id: user.id, role: 'user' };
+        return this.jwtService.sign(payload, { expiresIn: '15m' });
+    }
 
-
-    private async generateUserToken(user: Users) {
-        const payload = { id: user.id, country: user.country, role: 'user' };
-        return { token: this.jwtService.sign(payload) };
+    private generateRefreshToken(user: Users) {
+        const payload = { id: user.id };
+        const token = this.jwtService.sign(payload, { expiresIn: '7d' });
+        return token;
     }
 
     async registration(dto: CreateUserDto) {
         const exists = await this.usersService.getUserByEmail(dto.email);
-        if (exists) throw new UnauthorizedException({ message: 'User with this email exists' });
+        if (exists) throw new ConflictException({ message: 'User with this email exists' });
         const hashPassword = await bcrypt.hash(dto.password, 5);
         const user = await this.usersService.registration({ ...dto, password: hashPassword});
-        return this.generateUserToken(user);
+
+        const accessToken = this.generateAccessToken(user);
+        const refreshToken = this.generateRefreshToken(user);
+        await this.tokenService.saveRefreshToken(user.id, refreshToken);
+
+
+        return { accessToken, refreshToken };
     }
 
-    private async validateUser(userDto: LoginUserDto) {
-        let user = await this.usersService.getUserByEmail(userDto.email);
-        if (user && user.password) {
-            const passwordEquals = await bcrypt.compare(userDto.password, user.password);
-            if (passwordEquals) return user;
+
+    async login(dto : LoginUserDto) {
+        const user = await this.validateUser(dto);
+        const accessToken = this.generateAccessToken(user);
+        const refreshToken = this.generateRefreshToken(user);
+        await this.tokenService.saveRefreshToken(user.id, refreshToken);
+
+        return { accessToken, refreshToken };
+    }
+
+    private async validateUser(dto: LoginUserDto) {
+        const user = await this.usersService.getUserByEmail(dto.email);
+        if (!user || !(await bcrypt.compare(dto.password, user.password))) {
+            throw new UnauthorizedException('Incorrect email or password');
         }
-        throw new UnauthorizedException({ message: 'Incorrect email or password' });
+        return user;
     }
 
-    async login(userDto: LoginUserDto) {
-        const user = await this.validateUser(userDto);
-        return this.generateUserToken(user);
+    async logout(userId: number, token?: string) {
+
+        return this.tokenService.removeRefreshTokenByUserId(userId, token);
     }
-    
+
+    async refreshTokens(oldRefreshToken: string) {
+        const tokenRecord = await this.tokenService.getRefreshTokenRecord(oldRefreshToken);
+        if (!tokenRecord || tokenRecord.expiresAt < Date.now()) {
+            throw new UnauthorizedException('Refresh token expired');
+        }
+
+        const user = await this.usersService.getUserByIdSystem(tokenRecord.userId);
+        if (!user) {
+            throw new UnauthorizedException('User not found');
+        }
+        const newAccessToken = this.generateAccessToken(user);
+        const newRefreshToken = this.generateRefreshToken(user);
+        await this.tokenService.removeRefreshToken(oldRefreshToken);
+        await this.tokenService.saveRefreshToken(user.id, newRefreshToken);
+
+        return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+    }
 }

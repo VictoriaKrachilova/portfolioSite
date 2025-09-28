@@ -10,6 +10,8 @@ import { Images } from './images/images.model';
 import { Comments } from './comments/comments.model';
 import { StorageModule } from './storage/storage.module';
 import { CommentsModule } from './comments/comments.module';
+import { AuthModule } from './auth/auth.module';
+import { RefreshToken } from './auth/refresh-token.model';
 
 @Module({
 	controllers: [],
@@ -25,14 +27,15 @@ import { CommentsModule } from './comments/comments.module';
 			username: process.env.POSTGRES_USER,
 			password: process.env.POSTGRES_PASSWORD,
 			database: process.env.POSTGRES_DB,
-			autoLoadModels: true,
-			models: [ 
-				Comments,
-				Images,
-				Portfolios,
+			models: [
 				Users,
+				Portfolios,
+				Images,
+				Comments,
+				RefreshToken,
 			]
 		}),
+		AuthModule,
 		UsersModule,
 		PortfoliosModule,
 		ImagesModule,

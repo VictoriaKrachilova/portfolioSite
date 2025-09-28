@@ -24,7 +24,8 @@ export class CommentsService {
 			order: [ [ "created", "DESC" ] ],
 			offset,
 			limit,
-			raw: true
+			raw: true,
+			nest: true,
 		});
 		const count = await this.commentsRepository.count({ where: { imageId }});
 		return { comments, count };

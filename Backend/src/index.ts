@@ -5,6 +5,9 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
 import { Request, Response } from 'express';
 import multer from 'multer';
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { LoggingInterceptor } from './common/filters/logging-interceptor';
+import { TransformResponseInterceptor } from './common/filters/transforme-response-interceptor';
 
 async function bootstrap() {
     const PORT = process.env.PORT|| 5000;
@@ -25,14 +28,13 @@ async function bootstrap() {
 
     app.useGlobalPipes(
         new ValidationPipe({
-            transform: true, 
+            transform: true
         }),
     );
 
-    app.use((req: Request, res: Response, next: Function) => {
-        console.log(`Request: ${req.method} ${req.originalUrl}`);
-        next();
-    });
+    app.useGlobalFilters(new AllExceptionsFilter());
+    app.useGlobalInterceptors(new TransformResponseInterceptor());
+    app.useGlobalInterceptors(new LoggingInterceptor());
 
     await app.listen(PORT, () => console.log(`server started on port ${PORT}`));
 }

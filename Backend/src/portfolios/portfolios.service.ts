@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Portfolios } from './portfolios.model';
 import { CreatePortfolioDto } from './dto/create-portfolio.dto.js';
@@ -19,9 +19,7 @@ export class PortfoliosService {
     private async validatePortfolioName (name : string, userId : number) {
         name = name.trim();
         const exists = await this.portfoliosRepository.findOne({ where: { userId, name } });
-        if (exists) {
-            throw new BadRequestException('Container name already exists');
-        }
+        if (exists) throw new BadRequestException('Container name already exists');
         return null;
     }
 
@@ -38,20 +36,20 @@ export class PortfoliosService {
     private async deletePortfolioSystem(portfolioId: number) {
         await this.imagesService.deleteAllImagesByPortfolioId(portfolioId);
         await this.portfoliosRepository.destroy({ where: { id: portfolioId } });
-        return { status: 'ok' };
+        return null;
     }
 
     async deletePortfolio(portfolioId: number, userId: number) {
         const portfolio = await this.portfoliosRepository.findOne({ where: { id: portfolioId, userId } });
         if (!portfolio) throw new NotFoundException('Portfolio not found');
         await this.deletePortfolioSystem(portfolioId);
-        return { status: 'ok' };
+        return null;
     }
 
     async deleteAllPortfolioByUserId(userId: number) {
-        const portfolioArr = await this.portfoliosRepository.findAll({ where: { userId }, raw: true });
+        const portfolioArr = await this.portfoliosRepository.findAll({ where: { userId }, raw: true, nest: true });
         await Promise.all(portfolioArr.map(portfolio => this.deletePortfolioSystem(portfolio.id)));
-        return { status: 'ok' };
+        return null;
     }
 
 
@@ -59,11 +57,6 @@ export class PortfoliosService {
         const portfolio = (await this.portfoliosRepository.findOne({
             attributes: [ "id", "name", "description" ],
             include: [
-                {
-                    model: Users,
-                    attributes: [ "id", "name" ],
-                    required: true
-                },
                 {
                     model: Images,
                     attributes: [ "id", "name", "description" ],
@@ -86,7 +79,7 @@ export class PortfoliosService {
 
     async updatePortfolio(portfolioId: number, data: UpdatePortfolioDto) {
         const portfolio = (await this.portfoliosRepository.findOne({ where: { id: portfolioId, userId: data.user.id } }))?.toJSON();
-        if (!portfolio) throw new HttpException('Portfolio not found', HttpStatus.NOT_FOUND);
+        if (!portfolio) throw new NotFoundException('Portfolio not found');
         if (data.name) await this.validatePortfolioName(data.name, data.user.id);
         Object.assign(portfolio, data);
         await this.portfoliosRepository.update(portfolio, { where: { id: portfolio.id } });

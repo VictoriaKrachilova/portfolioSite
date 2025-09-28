@@ -10,7 +10,7 @@ interface UsersCreationAttrs {
     country: string;
 };
 
-@Table({ tableName: 'users', createdAt: false, updatedAt: false })
+@Table({ tableName: 'users', timestamps: false })
 export class Users extends Model<Users, UsersCreationAttrs> {
 
     @ApiProperty({ example: 1, description: 'Unique identificator' })

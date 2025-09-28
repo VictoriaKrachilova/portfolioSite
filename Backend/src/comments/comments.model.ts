@@ -10,7 +10,13 @@ interface CommentsCreationAttrs {
     text: string;
 };
 
-@Table({ tableName: 'comments', createdAt: false, updatedAt: false })
+@Table({ 
+    tableName: 'comments',
+    indexes: [
+        { fields: ['created'] }
+    ],
+    timestamps: false
+})
 export class Comments extends Model<Comments, CommentsCreationAttrs> {
 
     @ApiProperty({ example: 1, description: 'Unique identificator' })

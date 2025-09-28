@@ -11,7 +11,7 @@ interface PortfoliosCreationAttrs {
     description: string;
 };
 
-@Table({ tableName: 'portfolios', createdAt: false, updatedAt: false })
+@Table({ tableName: 'portfolios', timestamps: false })
 export class Portfolios extends Model<Portfolios, PortfoliosCreationAttrs> {
 
     @ApiProperty({ example: 1, description: 'Unique identificator' })

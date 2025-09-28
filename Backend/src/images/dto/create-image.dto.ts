@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNumber, IsOptional, IsString, Length } from "class-validator";
-import { user } from "../../common/types.js";
+import { user } from "../../common/dto/types.js";
 import { Type } from "class-transformer";
 
 

@@ -11,7 +11,13 @@ interface ImagesCreationAttrs {
     description?: string;
 };
 
-@Table({ tableName: 'images', createdAt: false, updatedAt: false })
+@Table({ 
+    tableName: 'images',
+    indexes: [
+        { fields: ['created'] }
+    ],
+    timestamps: false
+ })
 export class Images extends Model<Images, ImagesCreationAttrs> {
 
     @ApiProperty({ example: 1, description: 'Unique identificator' })

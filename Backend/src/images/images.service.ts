@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Op, literal, col, fn, where, QueryTypes } from "sequelize";
 import { Transaction as SequelizeTransaction } from 'sequelize';
@@ -8,6 +8,7 @@ import { Portfolios } from '../portfolios/portfolios.model';
 import { CreateImageDto } from './dto/create-image.dto';
 import { StorageService } from '../storage/storage.service';
 import { Readable } from 'stream';
+import { ImageFeedDto, ImageFeedResponseDto } from '../common/dto/types';
 
 @Injectable()
 export class ImagesService {
@@ -18,8 +19,34 @@ export class ImagesService {
         private readonly sequelize: Sequelize
     ) {}
 
-    
+    async getImages(limit: number, offset: number): Promise<ImageFeedResponseDto> {
+        const { rows, count } = await this.imagesRepository.findAndCountAll({
+            attributes: ['id', 'name', 'description', 'created'],
+            include: [ 
+                { 
+                    model: Portfolios, 
+                    attributes: ['name'],
+                    required: true
+                }
+            ],
+            order: [['created', 'DESC']],
+            offset,
+            limit,
+            raw: true,
+            nest: true,
+        });
 
+        const images: ImageFeedDto[] = rows.map(img => ({
+            id: img.id,
+            name: img.name,
+            description: img.description,
+            portfolioName: img.portfolio.name,
+            created: img.created,
+            fileUrl: `/images/${img.id}`,
+        }));
+
+        return { images, count };
+    }
 
     async uploadImage (data: CreateImageDto, file: Express.Multer.File, userId: number) {
         data.name = data.name.trim();
@@ -46,7 +73,7 @@ export class ImagesService {
         if (!portfolio) throw new NotFoundException('Portfolio not found');
         await this.storageService.deleteFile(`portfolio-${portfolio.id}`, `image-${image.id}.jpeg`);
         await this.imagesRepository.destroy({ where: { id: imageId } });
-        return { status: 'ok' };
+        return null;
     }
 
     async getImage(imageId: number) {
@@ -59,6 +86,6 @@ export class ImagesService {
     async deleteAllImagesByPortfolioId(portfolioId: number) {
         await this.storageService.clearContainer(`portfolio-${portfolioId}`);
         await this.imagesRepository.destroy({ where: { portfolioId } });
-        return { status: 'ok' };
+        return null;
     }
 }
