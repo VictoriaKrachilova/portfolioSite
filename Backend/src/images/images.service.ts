@@ -30,7 +30,7 @@ export class ImagesService {
         const transaction: SequelizeTransaction = await this.sequelize.transaction();
         try {
             const image = (await this.imagesRepository.create(data, { transaction })).toJSON();
-            await this.storageService.saveFile(`portfolio-${data.portfolioId}`, `image-${image.id}`, file.buffer.toString('base64') );
+            await this.storageService.saveFile(`portfolio-${data.portfolioId}`, `image-${image.id}.jpeg`, file.buffer.toString('base64') );
             await transaction.commit();
             return { id: image.id };
         } catch (err) {
@@ -44,7 +44,7 @@ export class ImagesService {
         if (!image) throw new NotFoundException('Image not found');
         const portfolio = await this.portfoliosRepository.findOne({ where: { id: image.portfolioId, userId } });
         if (!portfolio) throw new NotFoundException('Portfolio not found');
-        await this.storageService.deleteFile(`portfolio-${portfolio.id}`, `image-${image.id}`);
+        await this.storageService.deleteFile(`portfolio-${portfolio.id}`, `image-${image.id}.jpeg`);
         await this.imagesRepository.destroy({ where: { id: imageId } });
         return { status: 'ok' };
     }
@@ -52,7 +52,7 @@ export class ImagesService {
     async getImage(imageId: number) {
         const image = (await this.imagesRepository.findByPk(imageId))?.toJSON();
         if (!image) throw new NotFoundException('Image not found');
-        const buffer = await this.storageService.getFile(`portfolio-${image.portfolioId}`, `image-${image.id}`);
+        const buffer = await this.storageService.getFile(`portfolio-${image.portfolioId}`, `image-${image.id}.jpeg`);
         return Readable.from(buffer);
     };
 
